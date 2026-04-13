@@ -150,25 +150,6 @@ addBody(s, [
 ]);
 addQuote(s, "「エンジニアじゃないと使えない」は完全な誤解。日本語で「○○を分析して」と伝えるだけでOK");
 
-// ===== SLIDE 7: モデル =====
-s = pres.addSlide();
-addTitle(s, "Claudeのモデル（頭脳の種類）");
-addTable(s,
-  ["モデル", "特徴", "向いている用途"],
-  [
-    ["Opus 4.6", "最高性能・深い思考", "複雑な分析・長文レポート"],
-    ["Sonnet 4.6", "性能とコストのバランス◎", "日常業務に最適"],
-    ["Haiku 4.5", "軽量・高速・低コスト", "簡単な質問・要約"],
-  ],
-  { y: 1.2, colW: [2.5, 3.5, 2.8] }
-);
-s.addText([
-  { text: "Claude Codeでは", options: { fontSize: 14, fontFace: FONT, color: C.body, breakLine: true } },
-  { text: "モデルを切り替えて使える", options: { fontSize: 14, fontFace: FONT, color: C.navy, bold: true, breakLine: true } },
-  { text: "普段はSonnet、難しい分析はOpusが基本", options: { bullet: true, fontSize: 14, fontFace: FONT, color: C.body } },
-], { x: 0.6, y: 3.2, w: 8.8, h: 0.8 });
-addQuote(s, "高性能なモデルほどトークン消費が多く、1日の利用上限に早く届く。基本はSonnetを使い、ここぞという作業だけOpusに切り替えるのがおすすめ。", 4.1);
-
 // ===== SLIDE 8: Section 2 =====
 sectionSlide("2. 自社での活用方法", "分析の効率化と自分専用ツールの開発", C.blue);
 
