@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Claude Code 講座</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/white.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /*
+         * Kaonavi-inspired theme on top of reveal white theme.
+         * Rule: NEVER touch section display/flex/position.
+         * Only override fonts, colors, sizes.
+         */
+
+        :root {
+            --navy: #2B3A67;
+            --yellow: #FFD139;
+            --blue: #4A8FE7;
+            --blue-light: #EBF3FE;
+            --gray-bg: #F7F8FA;
+            --gray-text: #64748B;
+            --border: #E8ECF1;
+            --text-body: #475569;
+        }
+
+        /* ---- Font base ---- */
+        .reveal {
+            font-family: 'Noto Sans JP', sans-serif;
+            color: var(--text-body);
+        }
+
+        /* ---- Headings ---- */
+        .reveal h1, .reveal h2, .reveal h3 {
+            font-family: 'Noto Sans JP', sans-serif;
+            color: var(--navy);
+            text-transform: none;
+            font-weight: 700;
+            text-align: left;
+        }
+        .reveal h1 {
+            font-size: 1.5em;
+            margin: 0 0 0.25em 0;
+            border-bottom: 3px solid var(--yellow);
+            display: block;
+            padding-bottom: 4px;
+        }
+        .reveal h3 {
+            font-size: 0.85em;
+            margin: 0.25em 0 0.12em 0;
+        }
+
+        /* ---- Body text ---- */
+        .reveal p {
+            font-size: 0.65em;
+            line-height: 1.6;
+            margin: 0 0 0.25em 0;
+            text-align: left;
+        }
+        .reveal li {
+            font-size: 0.62em;
+            line-height: 1.5;
+            margin-bottom: 0.08em;
+            text-align: left;
+        }
+        .reveal ul, .reveal ol {
+            display: block;
+            margin: 0.08em 0 0.25em 1em;
+        }
+
+        /* ---- Emphasis ---- */
+        .reveal strong {
+            color: var(--navy);
+            font-weight: 900;
+            background: linear-gradient(transparent 60%, rgba(255,209,57,0.4) 60%);
+        }
+        .reveal em {
+            color: #fff;
+            background: var(--blue);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-style: normal;
+            font-size: 0.9em;
+            font-weight: 700;
+        }
+
+        /* ---- Blockquote ---- */
+        .reveal blockquote {
+            border-left: 4px solid var(--yellow);
+            background: var(--gray-bg);
+            padding: 8px 14px;
+            font-style: normal;
+            border-radius: 0 8px 8px 0;
+            box-shadow: none;
+            width: 90%;
+            margin: 8px 0;
+            text-align: left;
+        }
+        .reveal blockquote p {
+            margin: 0;
+            font-size: 0.62em;
+            color: var(--navy);
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        /* ---- Table ---- */
+        .reveal table {
+            margin: 8px auto;
+            border-collapse: collapse;
+            font-size: 0.58em;
+            width: 95%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 6px rgba(43,58,103,0.06);
+        }
+        .reveal th {
+            background: var(--navy);
+            color: #fff;
+            padding: 6px 10px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .reveal td {
+            padding: 5px 10px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            vertical-align: middle;
+        }
+        .reveal tr:last-child td { border-bottom: none; }
+        .reveal tr:nth-child(even) td { background: var(--gray-bg); }
+        .reveal td:first-child { font-weight: 600; text-align: left; color: var(--navy); }
+
+        /* ---- Code ---- */
+        .reveal code {
+            font-family: 'SFMono-Regular', Consolas, monospace;
+            background: var(--blue-light);
+            color: var(--blue);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 700;
+        }
+        .reveal pre {
+            box-shadow: 0 2px 8px rgba(43,58,103,0.08);
+            border-radius: 8px;
+            width: 90%;
+            margin: 6px auto;
+            font-size: 0.55em;
+        }
+        .reveal pre code {
+            background: var(--navy);
+            color: #E2E8F0;
+            padding: 12px 16px;
+            font-weight: normal;
+            border-radius: 8px;
+            display: block;
+        }
+
+        /* ---- Section divider: Yellow ---- */
+        .section-yellow h1 {
+            color: var(--navy);
+            font-size: 2.0em;
+            border: none;
+            display: block;
+            text-align: center;
+        }
+        .section-yellow em {
+            display: block;
+            margin-top: 8px;
+            text-align: center;
+            color: var(--navy);
+            background: rgba(43,58,103,0.1);
+            padding: 3px 14px;
+            border-radius: 10px;
+            font-size: 0.6em;
+        }
+
+        /* ---- Section divider: Blue ---- */
+        .section-blue h1 {
+            color: #fff;
+            font-size: 2.0em;
+            border: none;
+            display: block;
+            text-align: center;
+        }
+        .section-blue em {
+            display: block;
+            margin-top: 8px;
+            text-align: center;
+            color: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.15);
+            padding: 3px 14px;
+            border-radius: 10px;
+            font-size: 0.6em;
+        }
+
+        /* ---- Title slide ---- */
+        .title-slide h1 {
+            font-size: 2.2em;
+            border: none;
+            display: block;
+            text-align: center;
+            color: var(--navy);
+        }
+        .title-slide p {
+            text-align: center;
+            color: var(--gray-text);
+            font-size: 0.75em;
+        }
+
+        /* ---- Ending slide ---- */
+        .ending-slide h1 {
+            font-size: 2.0em;
+            border: none;
+            display: block;
+            text-align: center;
+            color: #fff;
+        }
+        .ending-slide p {
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.7em;
+        }
+
+        /* ---- Dots decoration ---- */
+        .dots { text-align: center; margin-bottom: 6px; }
+        .dots span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin: 0 3px; }
+
+        /* ---- Hero image layout (slide 4) ---- */
+        .hero-layout {
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+            gap: 14px;
+            margin: 8px 0;
+            max-width: 100%;
+        }
+        .hero-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(43,58,103,0.06);
+            border: 2px solid var(--border);
+            min-width: 0;
+        }
+        .hero-panel--active {
+            border-color: var(--blue);
+            box-shadow: 0 3px 16px rgba(74,143,231,0.15);
+        }
+        .hero-panel img {
+            width: 160px;
+            height: 160px;
+            object-fit: cover;
+            flex-shrink: 0;
+            border-radius: 8px;
+            margin: 12px auto 0;
+        }
+        .hero-info {
+            padding: 8px 14px 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .hero-info h3 {
+            font-size: 0.65em;
+            margin: 0 0 6px 0;
+            color: var(--navy);
+            text-align: left;
+        }
+        .hero-panel--active .hero-info h3 {
+            color: var(--blue);
+        }
+        .hero-info ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .hero-info li {
+            font-size: 0.48em;
+            line-height: 1.5;
+            padding: 2px 0;
+            text-align: left;
+            color: var(--text-body);
+        }
+        .hero-info li.x-mark {
+            color: #B0B8C8;
+            text-decoration: line-through;
+        }
+        .hero-panel--active .hero-info li {
+            color: var(--navy);
+            font-weight: 600;
+        }
+        .hero-arrow {
+            display: flex;
+            align-items: center;
+            font-size: 1.8em;
+            color: var(--blue);
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+
+        /* ---- Progress / controls ---- */
+        .reveal .progress span { background: var(--blue); }
+        .reveal .controls { color: var(--navy); }
+    </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ===== TITLE ===== -->
+<section class="title-slide" data-background-color="#ffffff">
+    <div class="dots">
+        <span style="background:#4A8FE7"></span>
+        <span style="background:#FFD139"></span>
+        <span style="background:#2B3A67"></span>
+        <span style="background:#4A8FE7"></span>
+        <span style="background:#FFD139"></span>
+    </div>
+    <h1>Claude Code 講座</h1>
+    <p>マーケターのためのAI活用ツール入門</p>
+</section>
+
+<section data-markdown><textarea data-template>
+# 今日の内容
+
+### 1. Claude Codeとは何か
+モデルの種類・使い方の基本
+
+### 2. 自社での活用方法
+分析の効率化・自分専用ツール・やっていいこと/ダメなこと
+
+### 3. コンテキストエンジニアリング
+AIを使いこなすために一番大事な概念・コマンド
+
+### 4. スキルの作り方（本日のメイン）
+辞書型・ワークフロー型・実践ステップ
+
+### 5. セキュリティ
+リスクと安全装置・守るべきルール
+</textarea></section>
+
+<!-- ===== 1. Claude Codeとは ===== -->
+<section class="section-yellow" data-background-color="#FFD139">
+    <h1>1. Claude Codeとは何か</h1>
+</section>
+
+<section data-markdown><textarea data-template>
+# Claudeという「頭脳」
+
+- Claude = Anthropic社が作った**世界トップクラスのAI**
+- ChatGPTやGeminiと並ぶ、**3大AIの1つ**
+- データの分析・要約・レポート作成が**驚くほど得意**
+- 「日本語で指示するだけ」で、分析からグラフ作成まで全部やってくれる
+
+> ただし、Claude単体は**「頭脳だけの状態」**
+> 手も足もない。ファイルを触ったり、調べ物をしたりはできない。
+</textarea></section>
+
+<section>
+    <h1>Claude Code = 頭脳 + 装備</h1>
+    <div class="hero-layout">
+        <div class="hero-panel">
+            <img src="/Users/matsushimamasato/Downloads/Gemini_Generated_Image_ho0kfiho0kfiho0k.png" alt="素のClaude">
+            <div class="hero-info">
+                <h3>頭脳だけ（素のClaude）</h3>
+                <ul>
+                    <li>会話はできる</li>
+                    <li class="x-mark">ファイルは触れない</li>
+                    <li class="x-mark">データ分析はできない</li>
+                    <li class="x-mark">調べ物はできない</li>
+                </ul>
+            </div>
+        </div>
+        <div class="hero-arrow">→</div>
+        <div class="hero-panel hero-panel--active">
+            <img src="/Users/matsushimamasato/Downloads/Gemini_Generated_Image_t577tat577tat577.png" alt="Claude Code">
+            <div class="hero-info">
+                <h3>装備あり（Claude Code）</h3>
+                <ul>
+                    <li>会話もできる</li>
+                    <li><strong>ファイルの読み書きができる</strong></li>
+                    <li><strong>データ分析・グラフ作成ができる</strong></li>
+                    <li><strong>ネット検索もできる</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <blockquote><p>RPGでいうと、<strong>素手の勇者に剣と盾を持たせた</strong>ようなもの</p></blockquote>
+</section>
+
+<section data-markdown><textarea data-template>
+# 結論：デスクトップ版を使おう
+
+- デスクトップ版・Web版・CLI（黒い画面）の3種類あるが、**デスクトップ版が一番おすすめ**
+- 技術的な知識は**一切不要**
+- アプリを開いて、やりたいことを日本語で伝えるだけ
+
+> **「エンジニアじゃないと使えない」は完全な誤解**
+> 日本語で「○○を分析して」と伝えるだけでOK
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# Claudeのモデル（頭脳の種類）
+
+| モデル | 特徴 | 向いている用途 |
+|:--|:--|:--|
+| **Opus 4.6** | 最高性能・深い思考 | 複雑な分析・長文レポート |
+| **Sonnet 4.6** | 性能とコストのバランス◎ | **日常業務に最適** |
+| **Haiku 4.5** | 軽量・高速・低コスト | 簡単な質問・要約 |
+
+- Claude Codeでは**モデルを切り替えて使える**
+- 普段は**Sonnet**、難しい分析は**Opus**が基本
+
+> 高性能なモデルほど**トークン消費が多く、1日の利用上限に早く届く**。
+> 基本は**Sonnet**を使い、ここぞという作業だけ**Opus**に切り替えるのがおすすめ。
+</textarea></section>
+
+<!-- ===== 2. コンテキスト ===== -->
+<section class="section-blue" data-background-color="#4A8FE7">
+    <h1>2. 自社での活用方法</h1>
+    <em>分析の効率化と自分専用ツールの開発</em>
+</section>
+
+<section data-markdown><textarea data-template>
+# Claude Codeを何に使うのか
+
+自社では主に**2つの用途**で活用していきます
+
+### 用途1：分析業務の効率化
+- CSVやレポートデータの**集計・可視化を自動化**
+- 日本語で「○○を分析して」と伝えるだけで結果が出る
+- 手作業で数時間かかっていた集計が**数分で完了**
+
+### 用途2：自分専用ツールの開発
+- 自分の業務に合った**分析ツールやダッシュボード**をAIに作ってもらう
+- エンジニアへの依頼不要。**自分で・すぐに・追加費用なしで**作れる
+
+> ChatGPTとの違い：会話するだけでなく、**実際に動くツールを作ってくれる**
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 自分専用の分析ダッシュボード
+
+### Claude Codeに「こういうダッシュボードを作って」と伝えるだけ
+
+- 広告費・CPA・CVRなどの**主要KPIを一画面で可視化**
+- CSVを入れるだけで**自動更新**されるグラフ
+- 前月比・前年比の**異常値をハイライト表示**
+- 自分のPCの中で動くから**セキュリティも安心**
+
+> 外部ツールに月額を払う必要なし。
+> 自分の業務にぴったり合った、**世界にひとつだけのツール**が作れる。
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 良い指示の出し方
+
+同じ作業でも、**指示の出し方で結果が大きく変わる**
+
+### ✕ 悪い指示
+> 「このCSVを分析して」
+
+### ○ 良い指示
+> 「このCSVの売上データを読み込んで、商品カテゴリ別に前月比を出して。
+> 変動が20%以上の項目はハイライトして、考察を3行で書いて。」
+
+### 良い指示のポイント
+- **何を**（どのデータを、何の項目を）
+- **どう**（前月比、グラフ、表など）
+- **どこまで**（考察も書く、整形して出力、など）
+
+> 「新人に仕事を頼むつもり」で具体的に伝えるのがコツ
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 活用の進め方
+
+### ステップ1：「面倒な繰り返し作業」を洗い出す
+- 毎週やっている集計、毎月のレポート、定期的なチェック作業
+
+### ステップ2：Claude Codeに日本語でやり方を伝える
+- 「このCSVを読んで、こういう形式でまとめて」
+
+### ステップ3：うまくいったらスキル化して再利用
+- 次回から一言で同じ作業を実行できる
+
+> ただし、**AIに渡す情報の量には限りがある**。
+> これを理解しないとうまく使えない → 次のセクションで解説
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 便利さとリスクはトレードオフ
+
+AIは便利だが、**情報セキュリティとのバランス**が必要
+
+### 自分でやってOKなこと
+- 個人情報を含まない**配信結果の分析**
+- 自分のPCだけで使う**専用ツールの作成**
+- **定例作業の効率化**（レポート整形・集計など）
+
+### 依頼が必要なこと
+- 広告媒体のデータを使った分析・ツール開発
+- 社内システムと連携する仕組みの構築
+
+> 媒体情報を使って何かしたい場合は、
+> **自分またはエンジニアチームに作成を依頼**してください。
+> 迂闊に触らないことが一番の安全策です。
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 絶対にやってはいけないこと
+
+### 1. 個人情報を読み込ませない
+- 顧客名・メールアドレスなどが入ったデータは**絶対にAIに渡さない**
+
+### 2. APIキー・パスワードを渡さない
+- APIキー = 外部サービスに接続するための**合鍵**
+- 「このAPIを使って○○して」は**厳禁**
+- 無料のAI用APIも**学習がON**の場合が多く、**情報が学習データに使われる**
+
+### 3. 広告媒体のAPIには絶対に接続しない
+- Google広告、Meta広告などのAPI
+- 「APIで広告データを取ってきて分析して」も**ダメ**
+
+> 詳しくはセキュリティのセクションで解説します
+</textarea></section>
+
+<!-- ===== 3. コンテキストエンジニアリング ===== -->
+<section class="section-yellow" data-background-color="#FFD139">
+    <h1>3. コンテキストエンジニアリング</h1>
+    <em>AIを使いこなすために一番大事な概念</em>
+</section>
+
+<section data-markdown><textarea data-template>
+# コンテキスト = AIの「作業机の広さ」
+
+**コンテキスト** = 1回のやりとりでAIが見渡せる情報の量
+
+- 最新モデルで**ハリーポッター約1.5冊分**（20万トークン）
+- 多く感じるかもしれないが、**実はすぐに埋まる**
+- だから**何を机に置くか**が大事になる
+
+> 机の上に置ける資料には**限りがある**。
+> 分析データを広げすぎると、作業スペースがなくなる。
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 作業机には全部が載っている
+
+コンテキスト（作業机）の中には、こんなものが**全部**載っている：
+
+| 載っているもの | たとえると |
+|:--|:--|
+| あなたが送った指示 | 依頼書 |
+| AIが考えた内容 | メモ帳 |
+| 読み込んだCSVやレポート | 分析資料 |
+| 分析結果やグラフ | 報告書 |
+| 記憶（メモリ） | 付箋 |
+| ツールのやりとり | やりとりの履歴 |
+
+> これが全部、同じ机の上に載っている。**意外とすぐ机がいっぱいになる。**
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# よくある誤解
+
+> 「AIにたくさん情報を食わせて賢くさせよう」← AI*開発者*の話。*使う側*は逆。
+
+### 問題1：思考スペースの圧迫
+- 情報を入れすぎると、**AIが考えるためのスペース**がなくなる
+- 結果 → **AIの性能が落ちる**
+
+### 問題2：自動圧縮の発動
+- 机がいっぱいになると、AIが自動的に**情報を圧縮**する
+- **大事な指示まで一緒に潰される**ことがある
+- 結果 → **言うことを聞かなくなる**
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 自動圧縮のイメージ
+
+```
+【圧縮前の机】
+┌─────────────────────────────┐
+│ 指示書  メモ  資料  参考書  │
+│ 報告書  計算用紙  付箋     │
+│ ────── もう置けない！ ──── │
+└─────────────────────────────┘
+        ↓ 自動圧縮が発動 ↓
+【圧縮後の机】
+┌─────────────────────────────┐
+│ ぎゅっと圧縮された何か     │
+│ ※大事な指示も一緒に潰れた │
+└─────────────────────────────┘
+```
+
+> **圧縮が起きないように、余裕を持たせるのが大事**
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 正しいアプローチ：量より質
+
+### ✕ 大量の情報を入れて「覚えさせる」
+### ○ 本当に必要なものだけ**厳選して渡す**
+
+> 部下に分析を頼むとき、
+> 社内の全データを渡す → ✕
+> **必要なデータだけまとめて渡す** → ○
+
+では、どうやって「必要な情報だけ」を渡すのか？
+→ その仕組みが**Claude.md**と**スキル**
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# Claude.md ― AIの「常駐メモ」
+
+`Claude.md` = Claudeが**ずっと頭の中に持っている情報**
+
+```
+┌─────────────────────────────┐
+│       Claude.md (常駐)       │
+│   ・基本ルール  ・参照先    │
+│         200行以内            │
+└──────────┬──────────────────┘
+           │ 必要なときに読みに行く
+     ┌─────┼─────┐
+     ▼     ▼     ▼
+  docs/  docs/  docs/
+  分析A  手順B  テンプレC
+```
+
+> ポイント：全部書くのではなく、**「読みに行く先」を育てる**
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# Claude.md に何を書けばいいか
+
+### マーケター向けの記述例：
+
+```
+# 基本ルール
+- 出力は日本語で行うこと
+- 数値は千円単位で表記（例：1,234千円）
+- グラフは必ず前月比を含めること
+
+# 分析ルール
+- KPIの定義は docs/kpi-definitions.md を参照
+- 異常値は前月比±20%以上で報告
+
+# ブランドルール
+- 表記ガイドは docs/brand-guide.md を参照
+```
+
+> この**10行程度を書くだけ**で、毎回の指示量が激減する。
+> 公式でも「Claude.mdの質で成果が2〜3倍変わる」と言われている。
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 段階的開示 ― Claude.mdの設計思想
+
+Claude.mdの核心は**「情報を一度に全部渡さない」**こと
+
+```
+Claude.mdに「目次」だけ書く
+  ・レポート作成 → docs/report.md を読め
+  ・競合分析   → docs/competitor.md を読め
+        ↓ 必要なときだけ読みに行く
+  「今回はレポートだな」→ report.md だけ開く
+        ↓ さらに必要なら追加資料を取り出す
+  テンプレート / 用語集 ← 本当に必要な分だけ
+```
+
+> **全部を机に置かない。必要な棚だけ開く。**
+> これがコンテキストを最大限活かすコツ。
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# APIとは ― サービスの「注文カウンター」
+
+**API** = あるサービスに対して、決まった形式でお願いすると、データや機能を返してくれる窓口
+
+### 身近な例
+- 天気予報アプリ → 気象庁のAPIから天気データをもらっている
+- Google広告の管理画面 → 裏側でGoogle広告APIを通じてデータを表示
+- スプレッドシートの関数 → GoogleのAPIでデータを取得している
+
+### つまり
+- 普段使っているサービスの**裏側で動いている仕組み**
+- 人間が画面で操作する代わりに、**プログラムが直接やりとりする窓口**
+
+> APIキーはこのカウンターに入るための**入場証**。
+> だから他人に渡したら勝手に注文されてしまう → 絶対に渡さない。
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# MCPとは ― AIに道具を渡す仕組み
+
+**MCP** = AIが外部のサービスやツールを使えるようにする**接続の仕組み**
+
+### APIとの関係
+- API = サービスの窓口（カウンター）
+- MCP = そのカウンターへの**行き方をAIに教える**仕組み
+
+### 具体例
+- 「スプレッドシートを読み書きしたい」→ Google Sheets用のMCPを接続
+- 「Slackに通知を送りたい」→ Slack用のMCPを接続
+- 「社内のデータベースを検索したい」→ DB用のMCPを接続
+
+### 注意点
+- MCPで道具を増やせるが、**増やしすぎるとコンテキスト（机）が埋まる**
+- だから「いつ・どう使うか」のルールが必要 → それが**スキル**
+
+> MCPは便利だが、**管理者の許可なく勝手に接続しないこと**。
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# まずは1体のAIを育てよう
+
+最近よく見る情報発信：
+> 「マルチエージェントでチームを組んで効率化！」
+
+### 現実は…
+- コンテキスト管理を**無視したマルチエージェント**が大半
+- 最初は動く。でも情報が増えると**すぐ破綻**する
+- 結果 → **使い物にならないものがほとんど**
+
+### 正しい順番
+1. まず**シングルエージェント（1体のAI）を極める**
+2. コンテキスト管理を身につける
+3. その上で各エージェントの情報設計を学ぶ
+
+> **1体をちゃんと使えない人が、チームを組んでもうまくいかない。**
+> 今日の講座は、この「1体を極める」ための内容です。
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 覚えておきたいコマンド
+
+Claude Codeでは「/」で始まるコマンドが使える
+
+| コマンド | 何をするか |
+|:--|:--|
+| **/compact** | 会話を圧縮して**机のスペースを空ける**（最重要） |
+| **/clear** | 会話をリセットして**まっさらにする** |
+| **/context** | 今コンテキストに何が載っているか**一覧表示** |
+| **/help** | 使えるコマンドの一覧を表示 |
+
+> 特に **/compact** は超重要。
+> 作業が長くなったら「机がいっぱいになる前に整理する」イメージ。
+</textarea></section>
+
+<!-- ===== 4. スキルの作り方（メインセクション） ===== -->
+<section class="section-blue" data-background-color="#4A8FE7">
+    <h1>4. スキルの作り方</h1>
+    <em>この講座で一番大事なパート</em>
+</section>
+
+<section data-markdown><textarea data-template>
+# なぜスキルが重要なのか
+
+### AIに毎回同じ説明をしていませんか？
+
+- 「うちのブランドのトーンは○○で…」
+- 「レポートはこの形式で…」
+- 「分析の観点はこの3つで…」
+
+→ 毎回伝えると**机がすぐ埋まる**し、**伝え漏れ**も起きる
+
+> スキルにまとめておけば、**一言で呼び出せる**。
+> しかもコンテキストを**必要なときだけ**使うので効率的。
+> さらにスキルは**ただのファイル**なので、チームメンバーへの共有もコピーするだけ。
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# スキルの2つのタイプ
+
+| | 辞書型 | ワークフロー型 |
+|:--|:--|:--|
+| 役割 | **知識**を整理して渡す | **手順**を教える |
+| たとえ | 用語辞典・ガイドライン | 作業マニュアル |
+| いつ使う | AIが判断に迷うとき | AIに一連の作業を任せるとき |
+| 例 | ブランド用語集、分析ルール | 月次レポート作成、競合調査 |
+
+> まずはこの2つを理解すれば、スキルの設計で迷わなくなる
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 辞書型スキル ― 知識を整理して渡す
+
+AIが**判断に迷わないよう、正しい知識をまとめたもの**
+
+### 例：ブランドガイドライン・スキル
+- 自社名の正式表記（「株式会社○○」ではなく「○○」と書く）
+- NGワード一覧（競合名を直接出さない、など）
+- トーン＆マナー（カジュアル／フォーマルの基準）
+
+### 例：分析ルール・スキル
+- KPIの定義（「CVR」は何を指すか、計算式は何か）
+- 比較期間のルール（前月比？前年同月比？）
+- 異常値の判断基準（○%以上の変動は要報告）
+
+> **「こう書いて」「こう判断して」を事前にまとめておく**
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# ワークフロー型スキル ― 手順を教える
+
+AIに**一連の作業を順番通りにやらせるためのもの**
+
+### 例：月次レポート作成スキル
+```
+ステップ1：CSVファイルを読み込む
+ステップ2：前月比で主要KPIを集計する
+ステップ3：変動が大きい項目をピックアップ
+ステップ4：考察コメントを3行で書く
+ステップ5：所定のテンプレートに整形して出力
+```
+
+### 例：競合サイト調査スキル
+```
+ステップ1：指定URLのページ内容を取得
+ステップ2：価格・機能・訴求ポイントを抽出
+ステップ3：自社との比較表を作成
+ステップ4：差別化ポイントを3つ提案
+```
+
+> **毎回口頭で説明していた作業を、マニュアル化するだけ**
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 良いスキルを作る4つのコツ
+
+### 1. まず失敗を観察する
+- いきなり完璧を目指さず、AIが**どこでつまずくか**を見てから作る
+
+### 2. 辞書型とワークフロー型を分ける
+- 知識と手順を**別ファイル**にする。同時に使わない情報は分割
+
+### 3. 名前と説明をAI向けに書く
+- AIが「いつこのスキルを使うべきか」**判断できる名前**にする
+
+### 4. AIと対話しながら改善する
+- Claude自身に「なぜ失敗したか分析して」と**改善**させる
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 実践：スキルの作り方ステップ
+
+特別なことは不要。この流れでOK：
+
+### ステップ1：まず普通にClaude Codeで作業する
+- 例：「このCSVを月次レポートにまとめて」
+
+### ステップ2：うまくいったらこう伝える
+> **「この作業をスキルとして登録して」**
+
+### ステップ3：Claudeが自動でスキルファイルを作ってくれる
+
+### ステップ4：次回から一言で呼び出せる
+> **「月次レポートスキルでこのデータを分析して」**
+
+> うまくいかなかったら「○○の部分を修正して」で改善できる
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# マーケ業務でのスキル活用例
+
+| スキル名 | タイプ | 内容 |
+|:--|:--|:--|
+| ブランドガイドライン | 辞書型 | 表記ルール・NGワード・トーン |
+| KPI定義集 | 辞書型 | 指標の定義・計算式・判断基準 |
+| 月次レポート作成 | ワークフロー型 | CSV読込→集計→考察→整形 |
+| 競合サイト調査 | ワークフロー型 | URL取得→抽出→比較表→提案 |
+| 広告コピー作成 | 辞書型+ワークフロー型 | ガイドに沿って訴求文を生成 |
+
+> **繰り返す作業は全部スキル化の候補。**
+> まずは一番よくやる作業から始めてみましょう。
+</textarea></section>
+
+<!-- ===== 5. セキュリティ ===== -->
+<section class="section-yellow" data-background-color="#FFD139">
+    <h1>5. セキュリティ</h1>
+    <em>便利だからこそ知っておくべきリスク</em>
+</section>
+
+<section data-markdown><textarea data-template>
+# Claude Codeに潜むリスクを知ろう
+
+Claude Codeは便利な反面、**あなたのPCで直接動く**ツール
+
+### Claude Codeができること（＝リスクにもなること）
+- ファイルの読み書き・削除
+- ネット検索・外部サイトへのアクセス
+- **コマンドの実行 → PCに対して何でもできてしまう**
+
+### あなたのPC上にあるもの
+- 大事なファイル（業務資料・社内文書）
+- 認証情報（パスワード・APIキー・ログイン状態）
+
+> つまり、**指示の仕方を間違えると、大事なデータを消したり外部に送ったりできてしまう**
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# Claude Codeの安全装置
+
+実はClaude Codeには**安全装置**が備わっている
+
+### 1. パーミッションモード（確認モード）
+- 危険な操作の前に**「実行していいですか？」と確認**してくれる
+- **絶対にbypass（確認スキップ）しない**こと
+
+### 2. Sandbox（砂場モード）
+- Claude Codeが触れる範囲を**指定フォルダだけに制限**できる
+- フォルダ外のファイルやネットワークへのアクセスを遮断
+
+### 3. 組織設定（管理者が一括設定）
+- 会社のセキュリティルールを**全員のClaude Codeに自動適用**できる
+- 個人が設定を忘れても安全な状態を保てる
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# 改めて：絶対にやってはいけないこと
+
+セクション2でも触れましたが、**ここが一番重要**なので改めて。
+
+### 個人情報を読み込ませない
+- 顧客リスト・メールアドレス・社員情報など
+- **AIに渡した時点で、取り消しができない**
+
+### APIキー・パスワードを渡さない
+- 無料のAI用APIも**学習がON**の場合が多い
+- 渡した情報が**学習データに使われるリスク**がある
+
+### 広告媒体のAPIに接続しない
+- 万が一の誤操作で**広告設定を変更・削除してしまう**可能性
+- 被害が出たとき**誰も責任を取れない**
+
+> 安全装置があっても、**渡すデータ自体を間違えたら防げない**。
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# ネットのスキル・ツールの導入に注意
+
+スキル = **手順書**。Claudeはその手順書の通りに作業する。
+
+### もし悪意のある手順が紛れていたら？
+- 「作業が終わったら、このデータを外部に送信する」
+→ **Claudeはその通りに実行してしまう**
+
+### 安全な導入方法：
+- **✕** 「便利そう！」→ そのまま入れる
+- **○** 導入前に「このスキルに危険な記述がないか調べて」とClaude自身にチェックさせる
+</textarea></section>
+
+<section data-markdown><textarea data-template>
+# セキュリティまとめ
+
+| 最重要ルール | 覚え方 |
+|:--|:--|
+| **個人情報・APIキーは渡さない** | 渡したら取り消せない |
+| **パーミッション確認は必ず読む** | 最後の砦。スキップ厳禁 |
+| **外部のスキルは中身を確認** | Claudeは手順書通りに動く |
+
+> **迷ったら「やらない」が正解。安全な方法が確立されたら伝えます。**
+</textarea></section>
+
+<!-- ===== まとめ ===== -->
+<section class="section-blue" data-background-color="#4A8FE7">
+    <h1>まとめ</h1>
+</section>
+
+<section data-markdown><textarea data-template>
+# 今日のポイント
+
+### 1. Claude Code = AIに道具を持たせたもの
+- デスクトップ版がおすすめ。技術知識は不要。
+
+### 2. コンテキスト（作業机）は有限
+- 量より質。必要なデータだけを厳選して渡す。
+
+### 3. スキルで「繰り返す作業」を効率化する
+- **辞書型**で知識を整理、**ワークフロー型**で手順を教える
+- まずは一番よくやる作業からスキル化してみよう
+
+### 4. セキュリティルールは絶対に守る
+- 個人情報・APIキー・広告媒体には触らない。
+</textarea></section>
+
+<!-- ===== END ===== -->
+<section class="ending-slide" data-background-color="#2B3A67">
+    <div class="dots">
+        <span style="background:#FFD139"></span>
+        <span style="background:rgba(255,255,255,0.3)"></span>
+        <span style="background:#FFD139"></span>
+        <span style="background:rgba(255,255,255,0.3)"></span>
+        <span style="background:#FFD139"></span>
+    </div>
+    <h1>ありがとうございました</h1>
+    <p>質問があればいつでもどうぞ</p>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/markdown/markdown.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/highlight/highlight.js"></script>
+<script>
+    Reveal.initialize({
+        hash: true,
+        slideNumber: 'c/t',
+        transition: 'fade',
+        backgroundTransition: 'fade',
+        center: true,
+        margin: 0.04,
+        width: 1280,
+        height: 720,
+        minScale: 0.2,
+        maxScale: 2.0,
+        plugins: [ RevealMarkdown, RevealHighlight ]
+    });
+</script>
+</body>
+</html>
