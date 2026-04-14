@@ -1,86 +1,164 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
 
-img = Image.open(os.path.expanduser("~/Desktop/スクリーンショット 2026-04-13 22.01.39.png"))
+SOURCE = os.path.expanduser("~/Desktop/スクリーンショット 2026-04-13 22.01.39.png")
+OUTPUT = os.path.expanduser("~/Desktop/提案資料/AI講義/CC講座/images/claude-code-ui-guide.png")
 
-# Crop to just the app area (remove macOS menu bar etc) and add small padding
-# Original: 3024x1964
-crop_top = 60
-img = img.crop((0, crop_top, img.width, img.height))
 
-# Add minimal bottom padding for labels
-pad = 200
-padded = Image.new("RGB", (img.width, img.height + pad), (30, 30, 30))
-padded.paste(img, (0, 0))
-img = padded
-draw = ImageDraw.Draw(img)
-S = 6.0
+def load_font(path, size):
+    try:
+        return ImageFont.truetype(path, size)
+    except OSError:
+        return ImageFont.load_default()
 
-# Adjust all Y coords for the crop offset
-OFF = crop_top / S  # ~10
 
-try:
-    font_label = ImageFont.truetype("/System/Library/Fonts/AppleSDGothicNeo.ttc", 42)
-    font_num = ImageFont.truetype("/System/Library/Fonts/AppleSDGothicNeo.ttc", 46)
-except:
-    font_label = ImageFont.load_default()
-    font_num = ImageFont.load_default()
+font_regular = load_font("/System/Library/Fonts/ヒラギノ角ゴシック W4.ttc", 28)
+font_bold = load_font("/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc", 34)
+font_small = load_font("/System/Library/Fonts/ヒラギノ角ゴシック W4.ttc", 22)
+font_num = load_font("/System/Library/Fonts/AppleSDGothicNeo.ttc", 28)
 
-RED = (230, 60, 60)
-WHITE = (255, 255, 255)
+BG = (246, 247, 250)
+PANEL = (255, 255, 255)
+INK = (36, 52, 92)
+SUB = (95, 108, 132)
+ACCENT = (230, 76, 60)
+BORDER = (228, 232, 240)
 
-def sx(v): return int(v * S)
-def sy(v): return int((v - OFF) * S)
+raw = Image.open(SOURCE).convert("RGB")
 
-def draw_box(x1, y1, x2, y2):
-    bx1, by1, bx2, by2 = sx(x1), sy(y1), sx(x2), sy(y2)
-    for i in range(5):
-        draw.rectangle([bx1-i, by1-i, bx2+i, by2+i], outline=RED)
+# Trim the empty right area a bit so the UI fills more of the frame.
+crop = raw.crop((0, 0, 2640, 1964))
 
-def draw_label(num, text, lx, ly, use_sy=True):
-    px = sx(lx)
-    py = sy(ly) if use_sy else int(ly * S)
-    r = 22
-    draw.ellipse([px-r, py-r, px+r, py+r], fill=RED)
-    nw = 12 if num < 10 else 18
-    draw.text((px-nw, py-18), str(num), fill=WHITE, font=font_num)
-    tw = len(text) * 42 + 20
-    draw.rectangle([px+28, py-16, px+28+tw, py+20], fill=RED)
-    draw.text((px+36, py-16), text, fill=WHITE, font=font_label)
+canvas = Image.new("RGB", (1800, 1080), BG)
+draw = ImageDraw.Draw(canvas)
 
-def draw_vline(x, y1, y2):
-    px, py1, py2 = sx(x), sy(y1), sy(y2)
-    draw.line([px, py1, px, py2], fill=RED, width=3)
+# Left screenshot card
+card_x, card_y = 70, 110
+card_w, card_h = 1170, 820
+draw.rounded_rectangle(
+    [card_x, card_y, card_x + card_w, card_y + card_h],
+    radius=28,
+    fill=PANEL,
+    outline=BORDER,
+    width=2,
+)
 
-# 1. 新規セッション
-draw_box(5, 33, 100, 48)
-draw_label(1, "新しい作業を始める", 105, 40)
+screen_margin = 26
+shot_w = card_w - screen_margin * 2
+shot_h = card_h - screen_margin * 2
+shot = crop.resize((shot_w, shot_h), Image.Resampling.LANCZOS)
+canvas.paste(shot, (card_x + screen_margin, card_y + screen_margin))
 
-# 5. セッション一覧
-draw_box(3, 108, 150, 300)
-draw_label(5, "過去のセッション一覧", 158, 195)
+sx = shot_w / crop.width
+sy = shot_h / crop.height
+ox = card_x + screen_margin
+oy = card_y + screen_margin
 
-# 3. テキスト入力
-draw_box(148, 322, 485, 342)
-draw_label(3, "ここに日本語で指示を入力", 158, 312)
 
-# 4. モデル選択
-draw_box(432, 347, 486, 358)
-draw_label(4, "モデル切替", 380, 312)
+def box(x1, y1, x2, y2):
+    return [
+        ox + int(x1 * sx),
+        oy + int(y1 * sy),
+        ox + int(x2 * sx),
+        oy + int(y2 * sy),
+    ]
 
-# 2. フォルダーを選択 - label below image
-draw_box(138, 370, 275, 387)
-# Use raw pixel Y for below-image labels
-bottom_label_y = (img.height - pad + 80) / S
-draw_label(2, "作業フォルダを選ぶ（最初に必要）", 90, bottom_label_y, use_sy=False)
-# line from box to label
-draw.line([sx(207), sy(388), sx(207), int(bottom_label_y*S)-26], fill=RED, width=3)
 
-# 6. 許可モード
-draw_box(220, 347, 308, 358)
-draw_label(6, "許可モード（安全装置）", 295, bottom_label_y, use_sy=False)
-draw.line([sx(265), sy(360), sx(265), int(bottom_label_y*S)-26], fill=RED, width=3)
+def draw_focus(rect, label_no, anchor="tl"):
+    x1, y1, x2, y2 = rect
+    draw.rounded_rectangle(rect, radius=14, outline=ACCENT, width=5)
 
-output = os.path.expanduser("~/Desktop/提案資料/AI講義/CC講座/images/claude-code-ui-guide.png")
-img.save(output, quality=95)
-print(f"Done: {img.size}")
+    if anchor == "tl":
+        cx, cy = x1 + 20, y1 + 20
+    elif anchor == "tr":
+        cx, cy = x2 - 20, y1 + 20
+    elif anchor == "bl":
+        cx, cy = x1 + 20, y2 - 20
+    else:
+        cx, cy = x2 - 20, y2 - 20
+
+    r = 18
+    draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=ACCENT)
+    text = str(label_no)
+    bbox = draw.textbbox((0, 0), text, font=font_num)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
+    draw.text((cx - tw / 2, cy - th / 2 - 2), text, fill="white", font=font_num)
+
+
+focuses = [
+    (box(0, 135, 310, 240), 1, "tr"),
+    (box(1038, 1806, 1368, 1892), 2, "tl"),
+    (box(1000, 1495, 2390, 1686), 3, "bl"),
+    (box(2210, 1498, 2448, 1678), 4, "br"),
+    (box(0, 700, 270, 1605), 5, "tr"),
+    (box(1035, 1688, 1458, 1760), 6, "tl"),
+]
+
+for rect, no, anchor in focuses:
+    draw_focus(rect, no, anchor)
+
+# Right legend card
+legend_x, legend_y = 1290, 110
+legend_w, legend_h = 440, 820
+draw.rounded_rectangle(
+    [legend_x, legend_y, legend_x + legend_w, legend_y + legend_h],
+    radius=28,
+    fill=PANEL,
+    outline=BORDER,
+    width=2,
+)
+
+draw.text((legend_x + 34, legend_y + 34), "見るべき6か所", fill=INK, font=font_bold)
+draw.text(
+    (legend_x + 34, legend_y + 88),
+    "最初は下の6点だけ押さえれば十分です。",
+    fill=SUB,
+    font=font_small,
+)
+
+items = [
+    ("1", "新規セッション", "新しい作業を始める入口"),
+    ("2", "作業フォルダ", "最初に対象フォルダを選ぶ"),
+    ("3", "入力欄", "ここに日本語で依頼を書く"),
+    ("4", "モデル切替", "必要に応じてモデルを選ぶ"),
+    ("5", "セッション一覧", "過去の作業履歴を見返す"),
+    ("6", "許可モード", "安全装置。権限の確認に使う"),
+]
+
+row_y = legend_y + 150
+for num, title, desc in items:
+    draw.rounded_rectangle(
+        [legend_x + 34, row_y, legend_x + legend_w - 34, row_y + 92],
+        radius=18,
+        fill=(249, 250, 252),
+        outline=BORDER,
+        width=2,
+    )
+    cx = legend_x + 64
+    cy = row_y + 32
+    r = 18
+    draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=ACCENT)
+    bbox = draw.textbbox((0, 0), num, font=font_num)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
+    draw.text((cx - tw / 2, cy - th / 2 - 2), num, fill="white", font=font_num)
+    draw.text((legend_x + 96, row_y + 12), title, fill=INK, font=font_regular)
+    draw.text((legend_x + 96, row_y + 48), desc, fill=SUB, font=font_small)
+    row_y += 108
+
+draw.text(
+    (70, 40),
+    "Claude Code Desktop 画面ガイド",
+    fill=INK,
+    font=font_bold,
+)
+draw.text(
+    (70, 77),
+    "番号と右側の説明を見ながら、まずは画面の役割だけ押さえる",
+    fill=SUB,
+    font=font_small,
+)
+
+canvas.save(OUTPUT, quality=95)
+print(f"Done: {canvas.size}")
